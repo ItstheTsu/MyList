@@ -79,3 +79,5 @@ O **MyList** nasce com a missão de facilitar a vida financeira de qualquer pess
 Uma ferramenta simples, mas poderosa o suficiente para transformar o jeito que você lida com seu dinheiro.
 
 ---
+
+[_Direitos reservados: Allan Correa, 2025_]
