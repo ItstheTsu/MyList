@@ -15,10 +15,9 @@
 </template>
 
 <script>
-import api from "../services/axios.js";
 import ExpenseList from "../components/ExpenseList.vue";
 import ExpenseForm from "../components/ExpenseForm.vue";
-import { useRouter } from "vue-router"; // se estiver usando Vue Router
+import { useRouter } from "vue-router";
 
 export default {
   components: {
@@ -31,27 +30,30 @@ export default {
       refreshFlag: false,
     };
   },
-  setup() {
-    const router = useRouter();
-    return { router };
-  },
   async mounted() {
     try {
-      const response = await api.get("/users/me");
-      this.user = response.data;
+      const userStorage = localStorage.getItem("user");
+      if (userStorage) {
+        this.user = JSON.parse(userStorage);
+      } else {
+        console.warn("Nenhum usuário logado");
+        this.router.push("/login");
+      }
     } catch (error) {
       console.error("Erro ao carregar usuário logado:", error);
     }
+  },
+  setup() {
+    const router = useRouter();
+    return { router };
   },
   methods: {
     refreshExpenses() {
       this.refreshFlag = !this.refreshFlag;
     },
     logout() {
-      // Limpar dados do usuário e/ou token
       this.user = { id: null, name: "" };
-      localStorage.removeItem("token"); // se estiver usando token
-      // Redirecionar para login
+      localStorage.removeItem("user"); // limpa o LocalStorage
       this.router.push("/login");
     },
   },

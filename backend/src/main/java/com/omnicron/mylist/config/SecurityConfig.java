@@ -12,13 +12,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors() // habilita CORS configurado globalmente
+                .cors()
                 .and()
                 .authorizeHttpRequests()
+                .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers("/api/**").permitAll()
-                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/users/me").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated();
         return http.build();
     }
-
 }

@@ -13,6 +13,11 @@
       <button type="submit">Entrar</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
+    <div class="login-redirect">
+      <p>Não tem uma conta?</p>
+      <button @click="goToRegister">Cadastre-se</button>
+    </div>
   </div>
 </template>
 
@@ -38,7 +43,10 @@ export default {
         console.error("Erro login:", error);
         this.errorMessage = "Email ou senha inválidos!";
       }
-    }
+    },
+    goToRegister() {
+      this.$router.push("/register");
+    },
   }
 };
 </script>

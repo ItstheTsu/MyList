@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omnicron.mylist.entity.User;
@@ -21,9 +22,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/me")
-    public User getLoggedUser() {
-        // TEMPORÁRIO: retorna o usuário 1 fixo
-        return userService.getUserById(1L);
+    public User getLoggedUser(@RequestParam Long id) {
+        return userService.getUserById(id);
     }
 
     // Criar usuário

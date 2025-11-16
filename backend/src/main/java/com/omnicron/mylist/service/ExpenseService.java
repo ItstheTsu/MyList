@@ -55,13 +55,22 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
+    public Expense getExpenseById(Long id) {
+        return expenseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Despesa não encontrada"));
+    }
+
+    public Expense updateExpense(Expense expense) {
+        return expenseRepository.save(expense);
+    }
+
     // Totais por tipo de despesa
     // Totais por tipo
     public Map<String, Double> getTotalsByType(User user) {
         List<Expense> expenses = getAllExpensesByUser(user);
         Map<String, Double> totals = new HashMap<>();
         for (Expense e : expenses) {
-            String type = e.getType() != null ? e.getType().toString() : "OUTROS"; // converte Enum para String
+            String type = e.getType() != null ? e.getType().toString() : "OUTROS";
             totals.put(type, totals.getOrDefault(type, 0.0) + e.getAmount());
         }
         return totals;
@@ -72,7 +81,7 @@ public class ExpenseService {
         List<Expense> expenses = getAllExpensesByUser(user);
         List<String> alerts = new ArrayList<>();
         for (Expense e : expenses) {
-            if (!e.getPaid() && e.getAmount() > limite) { // troquei isPaid() por getPaid()
+            if (!e.getPaid() && e.getAmount() > limite) {
                 alerts.add("Despesa \"" + e.getDescription() + "\" acima do limite de R$ " + limite);
             }
         }

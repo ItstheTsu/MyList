@@ -31,18 +31,17 @@ public class ExpenseController {
     // Adicionar gasto
     @PostMapping
     public Expense addExpense(@RequestBody Expense expense) {
+        User user = userService.getUserById(expense.getUser().getId());
+        expense.setUser(user);
         return expenseService.addExpense(expense);
-
     }
 
-    // Listar todos gastos de um usuário
     @GetMapping("/user/{userId}")
     public List<Expense> getAllExpenses(@PathVariable Long userId) {
         User user = userService.getUserById(userId);
         return expenseService.getAllExpensesByUser(user);
     }
 
-    // Listar gastos de um usuário por mês
     @GetMapping("/user/{userId}/{year}/{month}")
     public List<Expense> getExpensesByMonth(@PathVariable Long userId,
             @PathVariable int year,
@@ -54,8 +53,22 @@ public class ExpenseController {
 
     // Marcar gasto como pago
     @PutMapping("/paid/{id}")
-    public void markAsPaid(@PathVariable Long id) {
-        expenseService.markAsPaid(id);
+    public Expense updatePaidStatus(@PathVariable Long id, @RequestBody PaidStatusRequest request) {
+        Expense expense = expenseService.getExpenseById(id);
+        expense.setPaid(request.isPaid());
+        return expenseService.updateExpense(expense);
+    }
+
+    public static class PaidStatusRequest {
+        private boolean paid;
+
+        public boolean isPaid() {
+            return paid;
+        }
+
+        public void setPaid(boolean paid) {
+            this.paid = paid;
+        }
     }
 
     @DeleteMapping("/{id}")
