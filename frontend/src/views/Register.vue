@@ -44,21 +44,37 @@ export default {
   methods: {
     async register() {
       try {
+        // Tenta criar o usuário
         const response = await api.post("/users", {
           name: this.name,
           email: this.email,
           password: this.password,
         });
-        const user = response.data;
 
-        localStorage.setItem("user", JSON.stringify(user));
+        if (response.status === 201) {
+          const user = response.data;
+          // Salva no localStorage
+          localStorage.setItem("user", JSON.stringify(user));
+          this.successMessage =
+            "Cadastro realizado! Redirecionando para o Dashboard...";
+          this.errorMessage = "";
 
-        this.$router.push("/dashboard");
-      } catch (error) {
-        console.error("Erro no cadastro:", error);
-        this.errorMessage = "Erro ao cadastrar usuário. Verifique os dados.";
+          // Redireciona pro Dashboard após 1s
+          setTimeout(() => {
+            this.$router.push("/dashboard");
+          }, 1000);
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 409) {
+          this.errorMessage = "Email já cadastrado. Tente outro.";
+        } else {
+          this.errorMessage = "Email já cadastrado. Tente outro.";
+        }
+        this.successMessage = "";
+        console.error("Erro no cadastro:", err);
       }
     },
+
     goToLogin() {
       this.$router.push("/login");
     },

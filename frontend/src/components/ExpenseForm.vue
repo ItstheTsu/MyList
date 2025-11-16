@@ -18,7 +18,7 @@
         </select>
       </div>
       <div>
-        <label>Data:</label>
+        <label>Data para pagamento:</label>
         <input type="date" v-model="expense.date" required />
       </div>
       <button type="submit">Adicionar</button>

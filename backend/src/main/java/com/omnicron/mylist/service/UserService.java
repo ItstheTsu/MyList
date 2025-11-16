@@ -22,7 +22,6 @@ public class UserService {
         return user;
     }
 
-    // Criar usuário
     public User addUser(User user) {
         return userRepository.save(user);
     }
@@ -44,4 +43,13 @@ public class UserService {
         return null;
     }
 
+    public User createUser(User user) {
+        // checa se já existe pelo email
+        User existing = userRepository.findByEmail(user.getEmail());
+        if (existing != null) {
+            throw new RuntimeException("Usuário já existe");
+        }
+
+        return userRepository.save(user);
+    }
 }

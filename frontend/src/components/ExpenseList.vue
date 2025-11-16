@@ -17,7 +17,7 @@
           @change="togglePaid(expense)"
         />
         {{ expense.description }} - Tipo: {{ expense.type }} - R$
-        {{ expense.amount }} - Pago: {{ expense.paidText }} - Registrada em:
+        {{ expense.amount }} - Pago: {{ expense.paidText }} - Para pagamento em:
         {{ expense.datate }}
         <button @click="deleteExpense(expense.id)" style="margin-left: 10px">
           Deletar
