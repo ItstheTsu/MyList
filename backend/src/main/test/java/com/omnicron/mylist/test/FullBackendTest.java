@@ -18,13 +18,13 @@ public class FullBackendTest {
 
             // 1️⃣ Criar usuário
             String userJson = """
-            {
-                "name": "Allan",
-                "email": "allan@example.com",
-                "password": "123456",
-                "salary": 5000
-            }
-            """;
+                    {
+                        "name": "Allan",
+                        "email": "allan@example.com",
+                        "password": "123456",
+                        "salary": 5000
+                    }
+                    """;
             sendPostRequest(BASE_URL + "/users", userJson, authHeader);
 
             // 2️⃣ Listar usuários
@@ -32,14 +32,14 @@ public class FullBackendTest {
 
             // 3️⃣ Criar despesa
             String expenseJson = """
-            {
-                "description": "Conta de luz",
-                "amount": 150,
-                "date": "2025-11-15",
-                "type": "FIXO",
-                "user": { "id": 1 }
-            }
-            """;
+                    {
+                        "description": "Conta de luz",
+                        "amount": 150,
+                        "date": "2025-11-15",
+                        "type": "FIXO",
+                        "user": { "id": 1 }
+                    }
+                    """;
             sendPostRequest(BASE_URL + "/expenses", expenseJson, authHeader);
 
             // 4️⃣ Listar despesas
@@ -60,11 +60,11 @@ public class FullBackendTest {
         System.out.println("\nGET " + urlStr + " -> Response Code: " + status);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(
-                status >= 200 && status < 400 ? con.getInputStream() : con.getErrorStream()
-        ));
+                status >= 200 && status < 400 ? con.getInputStream() : con.getErrorStream()));
         String line;
         StringBuilder content = new StringBuilder();
-        while ((line = in.readLine()) != null) content.append(line);
+        while ((line = in.readLine()) != null)
+            content.append(line);
         in.close();
         con.disconnect();
 
@@ -87,11 +87,11 @@ public class FullBackendTest {
         System.out.println("\nPOST " + urlStr + " -> Response Code: " + status);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(
-                status >= 200 && status < 400 ? con.getInputStream() : con.getErrorStream()
-        ));
+                status >= 200 && status < 400 ? con.getInputStream() : con.getErrorStream()));
         String line;
         StringBuilder content = new StringBuilder();
-        while ((line = in.readLine()) != null) content.append(line);
+        while ((line = in.readLine()) != null)
+            content.append(line);
         in.close();
         con.disconnect();
 
