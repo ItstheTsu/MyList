@@ -3,7 +3,10 @@
     <h2>Despesas do Usuário</h2>
     <ul>
       <li v-for="expense in expenses" :key="expense.id">
-        {{ expense.description }} - {{ expense.type }} - R$ {{ expense.amount }} - Pago: {{ expense.paidText }}
+        {{ expense.description }} - Tipo da despesa: {{ expense.type }} - R$
+        {{ expense.amount }} - Pago: {{ expense.paidText }} - Despesa registrada
+        para: {{ expense.datate }}
+        <button @click="deleteExpense(expense.id)">Deletar Despesa</button>
       </li>
     </ul>
   </div>
@@ -27,11 +30,24 @@ export default {
     async loadExpenses() {
       try {
         const response = await api.get(`/expenses/user/${this.userId}`);
-        // Mapear paid para texto
-        this.expenses = response.data.map(exp => ({
-          ...exp,
-          paidText: exp.paid ? "Pago" : "Não pago"
-        }));
+
+        this.expenses = response.data.map((exp) => {
+          if (exp.date) {
+            const [year, month, day] = exp.date.split("-");
+            return {
+              ...exp,
+              datate: `${day}/${month}/${year}`,
+              paidText: exp.paid ? "Pago" : "Não pago",
+            };
+          } else {
+            return {
+              ...exp,
+              datate: "Sem data",
+              paidText: exp.paid ? "Pago" : "Não pago",
+            };
+          }
+        });
+
         console.log("Despesas:", this.expenses);
       } catch (error) {
         console.error("Erro ao carregar despesas:", error);
@@ -40,7 +56,17 @@ export default {
           console.error("Data:", error.response.data);
         }
       }
-    }
-  }
+    },
+
+    async deleteExpense(expenseId) {
+      try {
+        await api.delete(`/expenses/${expenseId}`);
+        this.expenses = this.expenses.filter((exp) => exp.id !== expenseId); // Remove da lista
+        console.log(`Despesa ${expenseId} deletada`);
+      } catch (error) {
+        console.error(`Erro ao deletar despesa ${expenseId}:`, error);
+      }
+    },
+  },
 };
 </script>

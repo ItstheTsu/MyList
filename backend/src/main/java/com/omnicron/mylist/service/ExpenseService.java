@@ -1,14 +1,19 @@
 package com.omnicron.mylist.service;
 
-import com.omnicron.mylist.entity.Expense;
-import com.omnicron.mylist.entity.User;
-import com.omnicron.mylist.repository.ExpenseRepository;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.List;
+import com.omnicron.mylist.entity.Expense;
+import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.repository.ExpenseRepository;
 
 @Service
 public class ExpenseService {
@@ -16,12 +21,26 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    // Adicionar gasto
+    // Adicionar ou atualizar gasto
     public Expense addExpense(Expense expense) {
         return expenseRepository.save(expense);
     }
 
-    // Buscar gastos de um usuário em um mês
+    // Deletar gasto
+    public void deleteExpense(Long id) {
+        if (expenseRepository.existsById(id)) {
+            expenseRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Gasto não encontrado para exclusão");
+        }
+    }
+
+    // Listar todos os gastos de um usuário
+    public List<Expense> getAllExpensesByUser(User user) {
+        return expenseRepository.findByUser(user);
+    }
+
+    // Buscar gastos de um usuário em um mês específico
     public List<Expense> getExpensesByUserAndMonth(User user, YearMonth month) {
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
@@ -36,13 +55,52 @@ public class ExpenseService {
         expenseRepository.save(expense);
     }
 
-    // Listar todos os gastos de um usuário
-    public List<Expense> getAllExpensesByUser(User user) {
-        return expenseRepository.findByUser(user);
+    // Totais por tipo de despesa
+    // Totais por tipo
+    public Map<String, Double> getTotalsByType(User user) {
+        List<Expense> expenses = getAllExpensesByUser(user);
+        Map<String, Double> totals = new HashMap<>();
+        for (Expense e : expenses) {
+            String type = e.getType() != null ? e.getType().toString() : "OUTROS"; // converte Enum para String
+            totals.put(type, totals.getOrDefault(type, 0.0) + e.getAmount());
+        }
+        return totals;
     }
 
-    // Aqui você pode adicionar métodos para:
-    // - Calcular totais por tipo
-    // - Gerar alertas
-    // - Comparativo de 12 meses
+    // Alertas: despesas não pagas acima de um limite
+    public List<String> getAlerts(User user, double limite) {
+        List<Expense> expenses = getAllExpensesByUser(user);
+        List<String> alerts = new ArrayList<>();
+        for (Expense e : expenses) {
+            if (!e.getPaid() && e.getAmount() > limite) { // troquei isPaid() por getPaid()
+                alerts.add("Despesa \"" + e.getDescription() + "\" acima do limite de R$ " + limite);
+            }
+        }
+        return alerts;
+    }
+
+    // Comparativo dos últimos 12 meses
+    public Map<YearMonth, Double> getLast12Months(User user) {
+        Map<YearMonth, Double> monthTotals = new LinkedHashMap<>();
+        LocalDate now = LocalDate.now();
+
+        // Inicializa os últimos 12 meses com zero
+        for (int i = 11; i >= 0; i--) {
+            YearMonth ym = YearMonth.from(now.minusMonths(i));
+            monthTotals.put(ym, 0.0);
+        }
+
+        // Soma despesas por mês
+        List<Expense> expenses = getAllExpensesByUser(user);
+        for (Expense e : expenses) {
+            if (e.getDate() != null) {
+                YearMonth ym = YearMonth.from(e.getDate());
+                if (monthTotals.containsKey(ym)) {
+                    monthTotals.put(ym, monthTotals.get(ym) + e.getAmount());
+                }
+            }
+        }
+
+        return monthTotals;
+    }
 }

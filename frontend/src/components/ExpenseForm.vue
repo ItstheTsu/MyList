@@ -21,7 +21,7 @@
         <label>Data:</label>
         <input type="date" v-model="expense.date" required />
       </div>
-      <button type="submit">Adicionar</button>
+      <button type="submit" onclick="window.location.reload()" value="Reload Page">Adicionar</button>
     </form>
   </div>
 </template>

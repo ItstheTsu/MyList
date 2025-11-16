@@ -1,14 +1,12 @@
 <template>
   <div v-if="user.id">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
       <h1>Dashboard Financeiro - {{ user.name }}</h1>
       <button @click="logout">Logout</button>
     </div>
-
-    <!-- Form para adicionar despesa -->
     <ExpenseForm :userId="user.id" @expense-added="refreshExpenses" />
-
-    <!-- Lista de despesas -->
     <ExpenseList :userId="user.id" :refresh="refreshFlag" />
   </div>
   <div v-else>
@@ -25,12 +23,12 @@ import { useRouter } from "vue-router"; // se estiver usando Vue Router
 export default {
   components: {
     ExpenseList,
-    ExpenseForm
+    ExpenseForm,
   },
   data() {
     return {
-      user: { id: null, name: '' },
-      refreshFlag: false
+      user: { id: null, name: "" },
+      refreshFlag: false,
     };
   },
   setup() {
@@ -39,10 +37,10 @@ export default {
   },
   async mounted() {
     try {
-      const response = await api.get('/users/me');
+      const response = await api.get("/users/me");
       this.user = response.data;
     } catch (error) {
-      console.error('Erro ao carregar usuário logado:', error);
+      console.error("Erro ao carregar usuário logado:", error);
     }
   },
   methods: {
@@ -51,11 +49,11 @@ export default {
     },
     logout() {
       // Limpar dados do usuário e/ou token
-      this.user = { id: null, name: '' };
+      this.user = { id: null, name: "" };
       localStorage.removeItem("token"); // se estiver usando token
       // Redirecionar para login
       this.router.push("/login");
-    }
-  }
+    },
+  },
 };
 </script>
