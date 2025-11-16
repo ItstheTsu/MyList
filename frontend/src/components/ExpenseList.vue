@@ -19,19 +19,17 @@
         {{ expense.description }} - Tipo: {{ expense.type }} - R$
         {{ expense.amount }} - Pago: {{ expense.paidText }} - Para pagamento em:
         {{ expense.datate }}
-        <button @click="deleteExpense(expense.id)" style="margin-left: 10px">
-          Deletar
-        </button>
+
+        <span v-if="expense.endDate">
+          - Termina em: {{ expense.dataFinal }}
+        </span>
+
+        <button @click="deleteExpense(expense.id)">Deletar</button>
       </li>
     </ul>
 
-    <button @click="marcarTodosComoPagos" style="margin-top: 10px">
-      Marcar todos como pagos
-    </button>
-    <button
-      @click="marcarTodosComoNaoPagos"
-      style="margin-top: 10px; margin-left: 5px"
-    >
+    <button @click="marcarTodosComoPagos">Marcar todos como pagos</button>
+    <button @click="marcarTodosComoNaoPagos">
       Marcar todos como não pagos
     </button>
   </div>
@@ -86,9 +84,15 @@ export default {
           const datate = exp.date
             ? exp.date.split("-").reverse().join("/")
             : "Sem data";
+
+          const dataFinal = exp.endDate
+            ? exp.endDate.split("-").reverse().join("/")
+            : "—";
+
           return {
             ...exp,
             datate,
+            dataFinal,
             paidText: exp.paid ? "Pago" : "Não pago",
           };
         });

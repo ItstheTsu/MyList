@@ -1,10 +1,11 @@
-package com.omnicron.mylist.entity;
+package com.omnicron.mylist.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,6 +27,8 @@ public class Expense {
     private String description; // descrição do gasto
     private Double amount; // valor
     private LocalDate date; // data do gasto
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     private ExpenseType type; // tipo do gasto (enum)
@@ -105,6 +108,14 @@ public class Expense {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     // ----- equals e hashCode -----

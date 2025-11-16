@@ -11,8 +11,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.omnicron.mylist.entity.Expense;
-import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.model.Expense;
+import com.omnicron.mylist.model.User;
 import com.omnicron.mylist.repository.ExpenseRepository;
 
 @Service
@@ -21,12 +21,10 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
-    // Adicionar ou atualizar gasto
     public Expense addExpense(Expense expense) {
         return expenseRepository.save(expense);
     }
 
-    // Deletar gasto
     public void deleteExpense(Long id) {
         if (expenseRepository.existsById(id)) {
             expenseRepository.deleteById(id);
@@ -35,12 +33,10 @@ public class ExpenseService {
         }
     }
 
-    // Listar todos os gastos de um usuário
     public List<Expense> getAllExpensesByUser(User user) {
         return expenseRepository.findByUser(user);
     }
 
-    // Buscar gastos de um usuário em um mês específico
     public List<Expense> getExpensesByUserAndMonth(User user, YearMonth month) {
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
@@ -64,8 +60,6 @@ public class ExpenseService {
         return expenseRepository.save(expense);
     }
 
-    // Totais por tipo de despesa
-    // Totais por tipo
     public Map<String, Double> getTotalsByType(User user) {
         List<Expense> expenses = getAllExpensesByUser(user);
         Map<String, Double> totals = new HashMap<>();
@@ -76,7 +70,6 @@ public class ExpenseService {
         return totals;
     }
 
-    // Alertas: despesas não pagas acima de um limite
     public List<String> getAlerts(User user, double limite) {
         List<Expense> expenses = getAllExpensesByUser(user);
         List<String> alerts = new ArrayList<>();
@@ -112,4 +105,19 @@ public class ExpenseService {
 
         return monthTotals;
     }
+
+    public Expense save(Expense expense) {
+        Expense newExp = new Expense();
+
+        newExp.setDescription(expense.getDescription());
+        newExp.setAmount(expense.getAmount());
+        newExp.setDate(expense.getDate());
+        newExp.setType(expense.getType());
+        newExp.setPaid(expense.getPaid());
+        newExp.setUser(expense.getUser());
+        newExp.setEndDate(expense.getEndDate());
+
+        return expenseRepository.save(newExp);
+    }
+
 }

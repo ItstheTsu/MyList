@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.omnicron.mylist.entity.Expense;
-import com.omnicron.mylist.entity.ExpenseType;
-import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.model.Expense;
+import com.omnicron.mylist.model.ExpenseType;
+import com.omnicron.mylist.model.User;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {

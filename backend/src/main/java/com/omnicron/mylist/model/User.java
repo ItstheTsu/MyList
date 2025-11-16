@@ -1,4 +1,4 @@
-package com.omnicron.mylist.entity;
+package com.omnicron.mylist.model;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +24,9 @@ public class User {
     private String name; // nome do usuário
     private String email; // email
     private String password; // senha (armazenar criptografada depois)
-    private Double salary; // salário total do usuário
+    private float salary = 0f; // salário total do usuário
+    private float limitValue = 0f; // valor limite para alertas
+    private String currency = "R$"; // moeda preferida
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // evita loop infinito ao serializar JSON
@@ -34,7 +36,7 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String password, Double salary) {
+    public User(String name, String email, String password, Float salary) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -74,12 +76,28 @@ public class User {
         this.password = password;
     }
 
-    public Double getSalary() {
+    public Float getSalary() {
         return salary;
     }
 
-    public void setSalary(Double salary) {
+    public void setSalary(Float salary) {
         this.salary = salary;
+    }
+
+    public Float getLimitValue() {
+        return limitValue;
+    }
+
+    public void setLimitValue(Float limitValue) {
+        this.limitValue = limitValue;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     public List<Expense> getExpenses() {

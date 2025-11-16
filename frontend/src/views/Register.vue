@@ -1,34 +1,36 @@
-<template>
+<template class="page-full">
   <div class="register-container">
     <h1>Cadastro</h1>
     <form @submit.prevent="register">
       <div>
-        <label>Nome:</label>
-        <input v-model="name" type="text" required />
+        <input v-model="name" type="text" placeholder="Nome" required />
       </div>
       <div>
-        <label>Email:</label>
-        <input v-model="email" type="email" required />
+        <input v-model="email" type="email" placeholder="Email" required />
       </div>
       <div>
-        <label>Senha:</label>
-        <input v-model="password" type="password" required />
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Senha"
+          required
+        />
       </div>
       <button type="submit">Cadastrar</button>
+
+      <div class="login-redirect">
+        <a @click="goToLogin">Já tem uma conta?</a>
+      </div>
     </form>
 
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     <p v-if="successMessage" class="success">{{ successMessage }}</p>
-
-    <div class="login-redirect">
-      <p>Já tem uma conta?</p>
-      <button @click="goToLogin">Entrar</button>
-    </div>
   </div>
 </template>
 
 <script>
 import api from "../services/axios.js";
+import "../styles/LoginRegister/LoginRegister.css";
 
 export default {
   name: "Register",
@@ -44,22 +46,22 @@ export default {
   methods: {
     async register() {
       try {
-        // Tenta criar o usuário
         const response = await api.post("/users", {
           name: this.name,
           email: this.email,
           password: this.password,
         });
 
-        if (response.status === 201) {
+        if (response.status === 201 || response.status === 200) {
           const user = response.data;
-          // Salva no localStorage
+          const token = response.data.token;
+
+          api.defaults.headers.Authorization = `Bearer ${token}`;
           localStorage.setItem("user", JSON.stringify(user));
           this.successMessage =
             "Cadastro realizado! Redirecionando para o Dashboard...";
           this.errorMessage = "";
 
-          // Redireciona pro Dashboard após 1s
           setTimeout(() => {
             this.$router.push("/dashboard");
           }, 1000);
@@ -68,7 +70,7 @@ export default {
         if (err.response && err.response.status === 409) {
           this.errorMessage = "Email já cadastrado. Tente outro.";
         } else {
-          this.errorMessage = "Email já cadastrado. Tente outro.";
+          this.errorMessage = "Erro inesperado. Tente novamente.";
         }
         this.successMessage = "";
         console.error("Erro no cadastro:", err);

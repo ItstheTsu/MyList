@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.omnicron.mylist.entity.Expense;
-import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.model.Expense;
+import com.omnicron.mylist.model.User;
+import com.omnicron.mylist.repository.ExpenseRepository;
 import com.omnicron.mylist.service.ExpenseService;
 import com.omnicron.mylist.service.UserService;
 
@@ -22,11 +23,17 @@ import com.omnicron.mylist.service.UserService;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
+    private final ExpenseRepository expenseRepository;
+
     @Autowired
     private ExpenseService expenseService;
 
     @Autowired
     private UserService userService;
+
+    ExpenseController(ExpenseRepository expenseRepository) {
+        this.expenseRepository = expenseRepository;
+    }
 
     // Adicionar gasto
     @PostMapping

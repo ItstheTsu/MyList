@@ -1,28 +1,31 @@
-<template>
+<template class="page-full">
   <div class="login-container">
     <h1>Login</h1>
     <form @submit.prevent="login">
       <div>
-        <label>Email:</label>
-        <input v-model="email" type="email" required />
+        <input v-model="email" type="email" placeholder="Email" required />
       </div>
       <div>
-        <label>Senha:</label>
-        <input v-model="password" type="password" required />
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Senha"
+          required
+        />
       </div>
       <button type="submit">Entrar</button>
+
+      <div class="register-redirect">
+        <a @click="goToRegister">Não têm uma conta?</a>
+      </div>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-
-    <div class="login-redirect">
-      <p>Não tem uma conta?</p>
-      <button @click="goToRegister">Cadastre-se</button>
-    </div>
   </div>
 </template>
 
 <script>
 import api from "../services/axios.js";
+import "../styles/LoginRegister/LoginRegister.css";
 
 export default {
   name: "Login",
@@ -34,10 +37,14 @@ export default {
       try {
         const response = await api.post("/auth/login", {
           email: this.email,
-          password: this.password
+          password: this.password,
         });
         const user = response.data;
+        const token = response.data.token;
+
+        api.defaults.headers.Authorization = `Bearer ${token}`;
         localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
         this.$router.push("/dashboard");
       } catch (error) {
         console.error("Erro login:", error);
@@ -47,6 +54,6 @@ export default {
     goToRegister() {
       this.$router.push("/register");
     },
-  }
+  },
 };
 </script>
