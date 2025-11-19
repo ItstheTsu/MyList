@@ -1,4 +1,4 @@
-package com.omnicron.mylist.model;
+package com.omnicron.mylist.entity;
 
 import java.time.LocalDate;
 import java.util.Objects;

@@ -11,8 +11,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.omnicron.mylist.model.Expense;
-import com.omnicron.mylist.model.User;
+import com.omnicron.mylist.entity.Expense;
+import com.omnicron.mylist.entity.User;
 import com.omnicron.mylist.repository.ExpenseRepository;
 
 @Service

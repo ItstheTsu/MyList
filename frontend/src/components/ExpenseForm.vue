@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import api from "../services/axios";
+import api from "../services/api";
 
 export default {
   name: "ExpenseForm",

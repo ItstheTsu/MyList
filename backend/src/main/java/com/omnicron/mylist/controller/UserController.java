@@ -1,6 +1,8 @@
 package com.omnicron.mylist.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.omnicron.mylist.model.User;
+import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.security.JwtUtil;
 import com.omnicron.mylist.service.UserService;
 
 @RestController
@@ -23,6 +26,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @GetMapping("/me")
     public User getLoggedUser(@RequestParam Long id) {
@@ -40,15 +46,23 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
         try {
-            User saved = userService.createUser(user); // delega para o service
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+            // Cria o usuário (service retorna User)
+            User saved = userService.createUser(user);
+
+            // Gera o token JWT
+            String token = jwtUtil.generateToken(saved.getEmail());
+
+            // Retorna usuário + token
+            Map<String, Object> res = new HashMap<>();
+            res.put("user", saved);
+            res.put("token", token);
+
+            return ResponseEntity.ok(res);
+
         } catch (RuntimeException e) {
-            if ("Usuário já existe".equals(e.getMessage())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import api from "../services/axios.js";
+import api from "../services/api.js";
 import "../styles/LoginRegister/LoginRegister.css";
 
 export default {
@@ -33,12 +33,15 @@ export default {
     return { email: "", password: "", errorMessage: "" };
   },
   methods: {
-    async login() {
+    async login(event) {
+      this.errorMessage = "";
+      if (event) event.preventDefault();
       try {
         const response = await api.post("/auth/login", {
           email: this.email,
           password: this.password,
         });
+
         const user = response.data;
         const token = response.data.token;
 
@@ -48,7 +51,21 @@ export default {
         this.$router.push("/dashboard");
       } catch (error) {
         console.error("Erro login:", error);
-        this.errorMessage = "Email ou senha inválidos!";
+
+        if (error.response) {
+          if (error.response.status === 401) {
+            const msg = error.response.data;
+            if (msg === "Usuário não encontrado") {
+              this.errorMessage = "Conta não encontrada, realize o cadastro.";
+            } else {
+              this.errorMessage = "Email ou senha inválidos!";
+            }
+          } else {
+            this.errorMessage = "Erro no servidor. Tente novamente mais tarde.";
+          }
+        } else {
+          this.errorMessage = "Falha de rede. Verifique sua conexão.";
+        }
       }
     },
     goToRegister() {

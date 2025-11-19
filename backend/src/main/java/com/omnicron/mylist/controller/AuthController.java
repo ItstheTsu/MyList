@@ -1,49 +1,77 @@
 package com.omnicron.mylist.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.omnicron.mylist.dto.LoginRequest;
+import com.omnicron.mylist.dto.LoginResponse;
+import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.security.JwtUtil;
+import com.omnicron.mylist.service.UserService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
 
-import com.omnicron.mylist.model.User;
-import com.omnicron.mylist.service.UserService;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
 
+    public AuthController(
+            AuthenticationManager authenticationManager,
+            UserService userService,
+            JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    // ----- LOGIN -----
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest request) {
-        User user = userService.login(request.getEmail(), request.getPassword());
-        if (user == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        return ResponseEntity.ok(user);
-    }
-}
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            // autentica usando Spring Security
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Credenciais inválidas");
+        }
 
-class LoginRequest {
-    private String email;
-    private String password;
+        User user = userService.getUserByEmail(request.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail());
 
-    public String getEmail() {
-        return email;
+        return ResponseEntity.ok(
+                new LoginResponse(
+                        token,
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail()));
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    // ----- REGISTER -----
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User saved = userService.createUser(user); 
+            String token = jwtUtil.generateToken(saved.getEmail()); 
+
+            // devolve usuário + token
+            return ResponseEntity.ok(Map.of(
+                    "user", saved,
+                    "token", token));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

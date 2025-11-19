@@ -1,4 +1,4 @@
-package com.omnicron.mylist.model;
+package com.omnicron.mylist.entity;
 
 import java.util.List;
 import java.util.Objects;

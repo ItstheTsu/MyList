@@ -1,4 +1,4 @@
-package com.omnicron.mylist.model;
+package com.omnicron.mylist.entity;
 
 public enum ExpenseType {
     FIXO,

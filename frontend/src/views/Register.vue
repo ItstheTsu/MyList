@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import api from "../services/axios.js";
+import api from "../services/api.js";
 import "../styles/LoginRegister/LoginRegister.css";
 
 export default {

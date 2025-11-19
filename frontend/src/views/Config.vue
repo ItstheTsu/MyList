@@ -1,5 +1,5 @@
 <template>
-  <div class="config-container">
+  <div class="config-container" v-if="userId">
     <h2>Configurações</h2>
     <p>Nome de usuário: {{ user.name }}</p>
 
@@ -40,14 +40,18 @@
 
     <p v-if="saved" class="saved-msg">Configurações salvas! 🎯</p>
   </div>
+
+  <div v-else>
+    <p>Carregando ou redirecionando...</p>
+  </div>
 </template>
 
 <script>
-import axios from "axios";
+import api from "../services/api";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Config",
-
   data() {
     return {
       salary: "",
@@ -60,59 +64,56 @@ export default {
       },
     };
   },
-
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
   mounted() {
     const userLS = JSON.parse(localStorage.getItem("user"));
 
     if (!userLS || !userLS.id) {
       console.error("Nenhum usuário logado!");
+      this.router.push("/login");
       return;
     }
 
     this.userId = userLS.id;
 
-    axios
-      .get(`http://localhost:8080/api/users/${this.userId}`)
+    api
+      .get(`/users/${this.userId}`)
       .then((response) => {
         const u = response.data;
-
         this.salary = u.salary
           ? this.formatMoney(u.salary.toString().replace(".", ","))
           : "";
-
         this.limit = u.limitValue
           ? this.formatMoney(u.limitValue.toString().replace(".", ","))
           : "";
-
         this.currency = u.currency ?? "BRL";
         this.user.name = u.name ?? "";
       })
       .catch((err) => {
         console.error("Erro ao carregar configurações:", err);
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          localStorage.removeItem("user");
+          this.router.push("/login");
+        }
       });
   },
-
   methods: {
-    // máscara BRL
     formatMoney(value) {
       if (!value) return "";
-
       let num = value.replace(/\D/g, "");
-
       if (!num) return "";
-
       num = (parseInt(num) / 100).toFixed(2);
-
       num = num.replace(".", ",");
-
       return num.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
-
     saveConfig() {
-      if (!this.userId) {
-        console.error("ID do usuário não encontrado!");
-        return;
-      }
+      if (!this.userId) return;
 
       const normalize = (v) =>
         parseFloat(v.replace(/\./g, "").replace(",", "."));
@@ -123,14 +124,21 @@ export default {
         currency: this.currency,
       };
 
-      axios
-        .put(`http://localhost:8080/api/users/${this.userId}/config`, payload)
+      api
+        .put(`/users/${this.userId}/config`, payload)
         .then(() => {
           this.saved = true;
           setTimeout(() => (this.saved = false), 2000);
         })
         .catch((err) => {
           console.error("Erro ao salvar configurações:", err);
+          if (
+            err.response &&
+            (err.response.status === 401 || err.response.status === 403)
+          ) {
+            localStorage.removeItem("user");
+            this.router.push("/login");
+          }
         });
     },
   },
