@@ -1,18 +1,21 @@
 package com.omnicron.mylist.controller;
 
-import com.omnicron.mylist.dto.LoginRequest;
-import com.omnicron.mylist.dto.LoginResponse;
-import com.omnicron.mylist.entity.User;
-import com.omnicron.mylist.security.JwtUtil;
-import com.omnicron.mylist.service.UserService;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.omnicron.mylist.dto.LoginRequest;
+import com.omnicron.mylist.dto.LoginResponse;
+import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.security.JwtUtil;
+import com.omnicron.mylist.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,11 +38,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            // autentica usando Spring Security
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()));
+                            System.out.println("Autenticação bem-sucedida para: " + request.getEmail());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Credenciais inválidas");

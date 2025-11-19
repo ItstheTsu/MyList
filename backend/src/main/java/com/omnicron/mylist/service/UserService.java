@@ -1,8 +1,6 @@
 package com.omnicron.mylist.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.omnicron.mylist.entity.User;
 import com.omnicron.mylist.repository.UserRepository;
-import com.omnicron.mylist.security.JwtUtil;
 
 @Service
 public class UserService {
@@ -21,9 +18,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
     public User getUserByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
@@ -32,16 +26,13 @@ public class UserService {
         return user;
     }
 
-    // Criar usuário (registro)
-    // UserService
+    // Registro
     public User createUser(User user) {
-        // Evita duplicação
         User existing = userRepository.findByEmail(user.getEmail());
         if (existing != null) {
             throw new RuntimeException("Usuário já existe");
         }
 
-        // Valores default
         if (user.getSalary() == null)
             user.setSalary(0f);
         if (user.getLimitValue() == null)
@@ -49,14 +40,13 @@ public class UserService {
         if (user.getCurrency() == null)
             user.setCurrency("R$");
 
-        // Criptografa a senha
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println("Criando usuário: " + user.getId() + ", " + user.getName() + ", " + user.getEmail());
 
-        // Salva e retorna
         return userRepository.save(user);
     }
 
-    // Login corrigido (com BCrypt)
+    // Login
     public User login(String email, String password) {
         System.out.println("LOGIN TENTADO: " + email);
 
@@ -70,7 +60,6 @@ public class UserService {
         System.out.println("Usuário encontrado: " + user.getEmail());
         System.out.println("Comparando senha...");
 
-        // VERIFICA SENHA CRIPTOGRAFADA
         if (passwordEncoder.matches(password, user.getPassword())) {
             System.out.println("Senha correta!");
             return user;
