@@ -42,7 +42,7 @@ O backend do **MyList** segue o padrão **camadas separadas** (Layered Architect
 
 - **config**  
   - Configurações gerais da aplicação  
-  - Ex.: CORS, beans, segurança (SecurityConfig)  
+  - Ex.: `CORS`, `beans`, `segurança (SecurityConfig)`  
 
 - **controller**  
   - Recebe requisições HTTP do frontend  
