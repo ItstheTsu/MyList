@@ -19,7 +19,7 @@
         <a @click="goToRegister">Não têm uma conta?</a>
       </div>
 
-      <div>
+      <div class="recover-password">
         <a @click="backupPassword">Esqueceu a senha?</a>
       </div>
 

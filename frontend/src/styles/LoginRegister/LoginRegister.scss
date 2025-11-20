@@ -65,7 +65,8 @@ html, body {
         }
 
         .login-redirect,
-        .register-redirect {
+        .register-redirect,
+        .recover-password {
             display: flex;
             flex-direction: column;
             text-align: center;

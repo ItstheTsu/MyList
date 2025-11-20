@@ -66,8 +66,10 @@ html, body {
 }
 .login-container form .login-redirect,
 .login-container form .register-redirect,
+.login-container form .recover-password,
 .register-container form .login-redirect,
-.register-container form .register-redirect {
+.register-container form .register-redirect,
+.register-container form .recover-password {
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -76,8 +78,10 @@ html, body {
 }
 .login-container form .login-redirect a,
 .login-container form .register-redirect a,
+.login-container form .recover-password a,
 .register-container form .login-redirect a,
-.register-container form .register-redirect a {
+.register-container form .register-redirect a,
+.register-container form .recover-password a {
   margin-top: 1rem;
   cursor: pointer;
   text-decoration: underline;
