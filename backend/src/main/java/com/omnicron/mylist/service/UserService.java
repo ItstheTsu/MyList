@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.omnicron.mylist.entity.User;
+import com.omnicron.mylist.exceptions.UserAlreadyExistsException;
 import com.omnicron.mylist.repository.UserRepository;
 
 @Service
@@ -26,7 +27,7 @@ public class UserService {
     public User createUser(User user) {
         User existing = userRepository.findByEmail(user.getEmail());
         if (existing != null) {
-            throw new RuntimeException("Usuário já existe");
+            throw new UserAlreadyExistsException("E-mail já está em uso.");
         }
 
         if (user.getSalary() == null)

@@ -59,10 +59,11 @@ public class UserController {
             res.put("user", saved);
             res.put("token", token);
 
-            return ResponseEntity.ok(res);
+            return ResponseEntity.status(HttpStatus.CREATED).body(res);
 
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email já cadastrado");
+
         }
     }
 

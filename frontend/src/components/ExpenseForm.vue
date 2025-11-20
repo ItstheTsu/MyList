@@ -1,128 +1,79 @@
 <template>
-  <div>
+  <div class="expense-form-container">
     <button @click="openModal" class="add-btn">+ Adicionar Despesa</button>
 
-    <dialog ref="modal" class="modal">
-      <h2>Adicionar Despesa</h2>
+    <transition name="fade">
+      <div class="overlay" v-if="isModalOpen" @click="closeModal"></div>
+    </transition>
 
-      <form @submit.prevent="submitExpense">
-        <label>Descrição:</label>
-        <input v-model="form.description" required />
+    <transition name="modal">
+      <div class="modal" v-if="isModalOpen">
+        <h2>Adicionar Despesa</h2>
 
-        <label>Valor:</label>
-        <input v-model.number="form.amount" type="number" required />
+        <form @submit.prevent="submitExpense">
+          <label>Descrição:</label>
+          <input v-model="form.description" placeholder="Descrição" required />
 
-        <label>Tipo:</label>
-        <select v-model="form.type">
-          <option value="FIXO">Fixo</option>
-          <option value="VARIAVEL">Variável</option>
-        </select>
+          <label>Valor:</label>
+          <input v-model.number="form.amount" type="number" required />
 
-        <label>Data de pagamento:</label>
-        <input type="date" v-model="form.date" required />
+          <label>Tipo:</label>
+          <select v-model="form.type">
+            <option value="FIXO">Fixo</option>
+            <option value="VARIAVEL">Variável</option>
+          </select>
 
-        <label>
-          <input type="checkbox" v-model="form.repeat" /> Repetir por meses
-        </label>
+          <label>Data de pagamento:</label>
+          <input type="date" v-model="form.date" required />
 
-        <div v-if="form.repeat && form.type === 'FIXO'">
-          <label>Quantos meses?</label>
-          <input type="number" v-model.number="form.months" min="1" />
-        </div>
-
-        <div v-if="form.repeat && form.type === 'VARIAVEL'">
-          <button @click.prevent="openVariableEditor">
-            Editar valores mensais
-          </button>
-        </div>
-
-        <div class="actions">
-          <button type="button" @click="closeModal">Cancelar</button>
-          <button type="submit">Salvar</button>
-        </div>
-      </form>
-    </dialog>
-
-    <!-- modal de valores variáveis -->
-    <dialog ref="variableModal" class="modal">
-      <h2>Valores por mês</h2>
-
-      <div v-for="(v, i) in variableValues" :key="i">
-        <label>Mês {{ i + 1 }}</label>
-        <input type="number" v-model.number="variableValues[i]" />
+          <div class="actions">
+            <button type="button" @click="closeModal">Cancelar</button>
+            <button type="submit">Salvar</button>
+          </div>
+        </form>
       </div>
-
-      <button @click="closeVariableModal">Fechar</button>
-    </dialog>
+    </transition>
   </div>
 </template>
 
 <script>
 import api from "../services/api";
+import "../styles/ExpenseForm/ExpenseForm.scss";
 
 export default {
   name: "ExpenseForm",
   props: ["userId"],
-
   data() {
     return {
+      isModalOpen: false,
       form: {
         description: "",
         amount: 0,
         type: "FIXO",
         date: "",
-        repeat: false,
-        months: 1,
       },
-
-      variableValues: [],
     };
   },
-
   methods: {
     openModal() {
-      this.$refs.modal.showModal();
+      this.isModalOpen = true;
     },
-
     closeModal() {
-      this.$refs.modal.close();
+      this.isModalOpen = false;
     },
-
-    openVariableEditor() {
-      this.variableValues = Array(this.form.months).fill(this.form.amount);
-      this.$refs.variableModal.showModal();
-    },
-
-    closeVariableModal() {
-      this.$refs.variableModal.close();
-    },
-
     async submitExpense() {
       const today = new Date();
       const paymentDate = new Date(this.form.date);
-
       let delayed = false;
-      let months = this.form.repeat ? this.form.months : 1;
-
-      let firstPaymentDate = new Date(paymentDate);
 
       if (paymentDate < today) {
         const paid = confirm("Essa conta já foi paga?");
-        if (!paid) {
-          delayed = true;
-          firstPaymentDate.setMonth(firstPaymentDate.getMonth() + 1);
-        }
+        if (!paid) delayed = true;
       }
-
-      let finalEndDate = new Date(firstPaymentDate);
-      finalEndDate.setMonth(finalEndDate.getMonth() + (months - 1));
-
-      const finalEndStr = finalEndDate.toISOString().split("T")[0];
 
       const expense = {
         ...this.form,
-        date: firstPaymentDate.toISOString().split("T")[0],
-        endDate: finalEndStr,
+        date: paymentDate.toISOString().split("T")[0],
         user: { id: this.userId },
         delayed,
       };

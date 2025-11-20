@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2>Despesas do Usuário</h2>
-
     <p>Total não pago: R$ {{ totalNaoPago.toFixed(2) }}</p>
     <p>Total pago: R$ {{ totalPago.toFixed(2) }}</p>
 
@@ -11,17 +9,21 @@
         :key="expense.id"
         style="margin-bottom: 8px"
       >
-        <input
-          type="checkbox"
-          v-model="expense.paid"
-          @change="togglePaid(expense)"
-        />
         {{ expense.description }} - Tipo: {{ expense.type }} - R$
-        {{ expense.amount }} - Pago: {{ expense.paidText }} - Para pagamento em:
-        {{ expense.datate }}
+        {{ expense.amount }} - Para pagamento em: {{ expense.datate }}
 
         <span v-if="expense.endDate">
-          - Termina em: {{ expense.dataFinal }}
+          - Vence da conta em: {{ expense.dataFinal }}
+        </span>
+
+        <span>
+          <label>Alterar status da conta:</label>
+          <button
+            :class="expense.paid ? 'paid-btn' : 'unpaid-btn'"
+            @click="togglePaid(expense)"
+          >
+            {{ expense.paid ? "Não pago" : "Pago" }}
+          </button>
         </span>
 
         <button @click="deleteExpense(expense.id)">Deletar</button>
@@ -41,19 +43,11 @@ import api from "../services/api";
 export default {
   name: "ExpenseList",
   props: {
-    userId: {
-      type: Number,
-      required: true,
-    },
-    refresh: {
-      type: Boolean,
-      default: false,
-    },
+    userId: { type: Number, required: true },
+    refresh: { type: Boolean, default: false },
   },
   data() {
-    return {
-      expenses: [],
-    };
+    return { expenses: [] };
   },
   computed: {
     totalNaoPago() {
@@ -84,17 +78,10 @@ export default {
           const datate = exp.date
             ? exp.date.split("-").reverse().join("/")
             : "Sem data";
-
           const dataFinal = exp.endDate
             ? exp.endDate.split("-").reverse().join("/")
             : "—";
-
-          return {
-            ...exp,
-            datate,
-            dataFinal,
-            paidText: exp.paid ? "Pago" : "Não pago",
-          };
+          return { ...exp, datate, dataFinal };
         });
       } catch (error) {
         console.error("Erro ao carregar despesas:", error);
@@ -111,15 +98,12 @@ export default {
     },
 
     async togglePaid(expense) {
-      expense.paidText = expense.paid ? "Pago" : "Não pago";
-
+      const newStatus = !expense.paid;
       try {
-        await api.put(`/expenses/paid/${expense.id}`, { paid: expense.paid });
+        await api.put(`/expenses/paid/${expense.id}`, { paid: newStatus });
+        expense.paid = newStatus;
       } catch (error) {
         console.error(`Erro ao atualizar despesa ${expense.id}:`, error);
-        // Reverte caso dê erro
-        expense.paid = !expense.paid;
-        expense.paidText = expense.paid ? "Pago" : "Não pago";
       }
     },
 
@@ -128,14 +112,11 @@ export default {
         .filter((exp) => !exp.paid)
         .map((exp) => {
           exp.paid = true;
-          exp.paidText = "Pago";
           return api.put(`/expenses/paid/${exp.id}`, { paid: true });
         });
-
       try {
         await Promise.all(promises);
-      } catch (error) {
-        console.error("Erro ao marcar todos como pagos:", error);
+      } catch {
         this.loadExpenses();
       }
     },
@@ -145,14 +126,11 @@ export default {
         .filter((exp) => exp.paid)
         .map((exp) => {
           exp.paid = false;
-          exp.paidText = "Não pago";
           return api.put(`/expenses/paid/${exp.id}`, { paid: false });
         });
-
       try {
         await Promise.all(promises);
-      } catch (error) {
-        console.error("Erro ao marcar todos como não pagos:", error);
+      } catch {
         this.loadExpenses();
       }
     },

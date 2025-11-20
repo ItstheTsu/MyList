@@ -1,23 +1,29 @@
 <template>
-  <div v-if="user.id">
-    <div style="display: flex; justify-content: space-between; align-items: center">
-      <h1>Dashboard Financeiro - {{ user.name }}</h1>
-      <button @click="config">Configurações</button>
-      <button @click="logout">Logout</button>
+  <div class="dashboard-container">
+    <div class="container-page" v-if="user.id">
+      <div class="dashboard-header">
+        <div class="dashboard-header-top">
+          <h1>Dashboard Financeiro - {{ user.name }}</h1>
+          <div class="dashboard-header-buttons">
+            <button @click="config"><i class="fa-solid fa-gear"></i></button>
+            <button @click="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+          </div>
+        </div>
+        <div class="dashboard-header-bottom">
+          Salário Mensal: {{ user.salary }} | Limite Mensal:
+          {{ user.limitValue }} | Moeda Atual: {{ user.currency }}
+        </div>
+      </div>
+
+      <h1>Despesas do usuário</h1>
+
+      <ExpenseForm :userId="user.id" @expense-added="refreshExpenses" />
+      <ExpenseList :userId="user.id" :refresh="refreshFlag" />
     </div>
 
-    <div>
-      Salário Mensal: {{ user.salary }} |
-      Limite Mensal: {{ user.limitValue }} |
-      Moeda Atual: {{ user.currency }}
+    <div v-else>
+      <p>Carregando usuário...</p>
     </div>
-
-    <ExpenseForm :userId="user.id" @expense-added="refreshExpenses" />
-    <ExpenseList :userId="user.id" :refresh="refreshFlag" />
-  </div>
-
-  <div v-else>
-    <p>Carregando usuário...</p>
   </div>
 </template>
 
@@ -26,6 +32,7 @@ import ExpenseList from "../components/ExpenseList.vue";
 import ExpenseForm from "../components/ExpenseForm.vue";
 import { useRouter } from "vue-router";
 import api from "../services/api";
+import "../styles/Dashboard/Dashboard.css";
 
 export default {
   components: { ExpenseList, ExpenseForm },
@@ -39,11 +46,11 @@ export default {
         currency: null,
       },
       refreshFlag: false,
-      router: null, 
+      router: null,
     };
   },
   async mounted() {
-    this.router = useRouter(); 
+    this.router = useRouter();
 
     try {
       const userStorage = JSON.parse(localStorage.getItem("user"));
@@ -72,7 +79,7 @@ export default {
     logout() {
       this.user = { id: null, name: "" };
       localStorage.removeItem("user");
-      this.router.push("/login"); // agora funciona
+      this.router.push("/login");
     },
     config() {
       this.router.push("/config");
