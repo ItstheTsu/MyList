@@ -118,5 +118,4 @@ public class AuthController {
             return ResponseEntity.status(400).body("Token inválido ou usuário não encontrado");
         return ResponseEntity.ok("Senha atualizada com sucesso!");
     }
-
 }
