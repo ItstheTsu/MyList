@@ -3,6 +3,7 @@ import Login from "../views/Login.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Register from "../views/Register.vue";
 import Config from "../views/Config.vue";
+import BackupPassword from "../views/RecoverPassword.vue";
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: "/config",
     name: "Configurações",
     component: Config,
+  },
+  {
+    path: "/recover-password",
+    name: "RecoverPassword",
+    component: BackupPassword,
   },
   {
     path: "/",

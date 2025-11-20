@@ -53,11 +53,12 @@ export default {
         });
 
         if (response.status === 201 || response.status === 200) {
-          const user = response.data;
-          const token = response.data.token;
+          const [ user, token ] = [response.data, response.data.token];
+
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
 
           api.defaults.headers.Authorization = `Bearer ${token}`;
-          localStorage.setItem("user", JSON.stringify(user));
           this.successMessage =
             "Cadastro realizado! Redirecionando para o Dashboard...";
           this.errorMessage = "";

@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import com.omnicron.mylist.security.MyUserDetailsService;
 import java.io.IOException;
 
 @Component
@@ -27,13 +27,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain chain)
-            throws ServletException, IOException {
+            FilterChain chain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
 
-        // Rotas públicas não precisam de token
-        if (path.startsWith("/api/auth") || path.equals("/api/users")) {
+        // Rotas públicas
+        if (path.startsWith("/api/auth") || (path.equals("/api/users") && request.getMethod().equals("POST"))) {
             chain.doFilter(request, response);
             return;
         }
@@ -48,19 +47,28 @@ public class JwtFilter extends OncePerRequestFilter {
                 username = jwtUtil.extractUsername(token);
             } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token inválido ou expirado");
                 return;
             }
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token não fornecido");
+            return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+            // passa o email para validar
             if (jwtUtil.validateToken(token, userDetails.getUsername())) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null, userDetails.getAuthorities());
-
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token inválido");
+                return;
             }
         }
 

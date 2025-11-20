@@ -19,11 +19,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
-        return user;
+        return userRepository.findByEmail(email);
     }
 
     // Registro

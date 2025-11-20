@@ -18,6 +18,11 @@
       <div class="register-redirect">
         <a @click="goToRegister">Não têm uma conta?</a>
       </div>
+
+      <div>
+        <a @click="backupPassword">Esqueceu a senha?</a>
+      </div>
+
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
@@ -42,8 +47,7 @@ export default {
           password: this.password,
         });
 
-        const user = response.data;
-        const token = response.data.token;
+        const [ user, token ] = [response.data, response.data.token];
 
         api.defaults.headers.Authorization = `Bearer ${token}`;
         localStorage.setItem("user", JSON.stringify(user));
@@ -71,6 +75,9 @@ export default {
     goToRegister() {
       this.$router.push("/register");
     },
+    backupPassword() {
+      this.$router.push("/recover-password");
+    }
   },
 };
 </script>
