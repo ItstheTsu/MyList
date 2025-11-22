@@ -82,7 +82,11 @@ export default {
     let lastX = null;
     let lastY = null;
 
+    const mouse = { x: 0, y: 0 };
     document.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+
       if (lastX === null) {
         lastX = e.clientX;
         lastY = e.clientY;
@@ -102,10 +106,134 @@ export default {
     });
 
     const fade = () => {
-      ctx.fillStyle = "rgba(255,255,255,0.08)";
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       requestAnimationFrame(fade);
     };
+
+    const snakes = [];
+
+    function createSnake() {
+      const startX = Math.random() * canvas.width;
+      const startY = Math.random() * canvas.height;
+
+      return {
+        points: Array.from({ length: 50 }, () => ({
+          x: startX,
+          y: startY,
+        })),
+        speed: 1 + Math.random() * 2,
+        angle: Math.random() * Math.PI * 2,
+        turnChance: 0.04 + Math.random() * 0.03,
+        color: `rgba(${Math.floor(Math.random() * 255)}, 
+                     ${Math.floor(Math.random() * 255)}, 
+                     ${Math.floor(Math.random() * 255)}, 
+                     ${0.3 + Math.random() * 0.4})`,
+      };
+    }
+
+    for (let i = 0; i < 8; i++) snakes.push(createSnake());
+
+    const particles = [];
+
+    function explodeSnake(snake) {
+      snake.points.forEach((p) => {
+        for (let i = 0; i < 3; i++) {
+          particles.push({
+            x: p.x,
+            y: p.y,
+            vx: (Math.random() - 0.5) * 5,
+            vy: (Math.random() - 0.5) * 5,
+            alpha: 1,
+            color: snake.color,
+          });
+        }
+      });
+
+      Object.assign(snake, createSnake());
+    }
+
+    function animateParticles() {
+      particles.forEach((pt, i) => {
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.alpha -= 0.02;
+
+        if (pt.alpha <= 0) {
+          particles.splice(i, 1);
+          return;
+        }
+
+        const rgb = pt.color.replace(/rgba?\(([^)]+)\)/, "$1").split(",");
+        const r = rgb[0];
+        const g = rgb[1];
+        const b = rgb[2];
+
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${pt.alpha})`;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function animateSnakes() {
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      animateParticles();
+
+      snakes.forEach((snake) => {
+        if (Math.random() < snake.turnChance) {
+          snake.angle += (Math.random() - 0.5) * 0.6;
+        }
+
+        const head = snake.points[0];
+
+        const dx = head.x - mouse.x;
+        const dy = head.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 200) {
+          explodeSnake(snake);
+          return;
+        }
+
+        const newHead = {
+          x: head.x + Math.cos(snake.angle) * snake.speed,
+          y: head.y + Math.sin(snake.angle) * snake.speed,
+        };
+
+        snake.points.unshift(newHead);
+        snake.points.pop();
+
+        if (
+          newHead.x < -50 ||
+          newHead.x > canvas.width + 50 ||
+          newHead.y < -50 ||
+          newHead.y > canvas.height + 50
+        ) {
+          Object.assign(snake, createSnake());
+        }
+
+        ctx.beginPath();
+        ctx.strokeStyle = snake.color;
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        for (let i = 0; i < snake.points.length - 1; i++) {
+          const p1 = snake.points[i];
+          const p2 = snake.points[i + 1];
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+
+        ctx.stroke();
+      });
+
+      requestAnimationFrame(animateSnakes);
+    }
+
+    animateSnakes();
     fade();
     this.typeWriter();
   },
