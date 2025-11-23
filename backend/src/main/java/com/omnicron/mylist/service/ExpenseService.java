@@ -43,7 +43,6 @@ public class ExpenseService {
         return expenseRepository.findByUserAndDateBetween(user, start, end);
     }
 
-    // Marcar gasto como pago
     public void markAsPaid(Long expenseId) {
         Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new RuntimeException("Gasto não encontrado"));
@@ -81,18 +80,15 @@ public class ExpenseService {
         return alerts;
     }
 
-    // Comparativo dos últimos 12 meses
     public Map<YearMonth, Double> getLast12Months(User user) {
         Map<YearMonth, Double> monthTotals = new LinkedHashMap<>();
         LocalDate now = LocalDate.now();
 
-        // Inicializa os últimos 12 meses com zero
         for (int i = 11; i >= 0; i--) {
             YearMonth ym = YearMonth.from(now.minusMonths(i));
             monthTotals.put(ym, 0.0);
         }
 
-        // Soma despesas por mês
         List<Expense> expenses = getAllExpensesByUser(user);
         for (Expense e : expenses) {
             if (e.getDate() != null) {
@@ -120,4 +116,7 @@ public class ExpenseService {
         return expenseRepository.save(newExp);
     }
 
+    public Double getTotalGasto() {
+        return expenseRepository.findTotalGasto();
+    }
 }

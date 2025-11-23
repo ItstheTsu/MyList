@@ -24,23 +24,26 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String description; // descrição do gasto
-    private Double amount; // valor
-    private LocalDate date; // data do gasto
+    private String description;
+    private Double amount;
+    private LocalDate date;
+
+    // NOVO CAMPO
+    private boolean investimento;
+
     @Column(name = "end_date")
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    private ExpenseType type; // tipo do gasto (enum)
+    private ExpenseType type;
 
-    private Boolean paid = false; // se o gasto foi pago ou não
+    private Boolean paid = false;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference // aqui para evitar o loop infinito
-    private User user; // dono do gasto
+    @JsonBackReference
+    private User user;
 
-    // ----- Construtores -----
     public Expense() {
     }
 
@@ -53,7 +56,6 @@ public class Expense {
         this.paid = false;
     }
 
-    // ----- Getters e Setters -----
     public Long getId() {
         return id;
     }
@@ -68,6 +70,12 @@ public class Expense {
 
     public void setDescription(String description) {
         this.description = description;
+
+        if (description != null && description.trim().equalsIgnoreCase("investimento")) {
+            this.investimento = true;
+        } else {
+            this.investimento = false;
+        }
     }
 
     public Double getAmount() {
@@ -118,7 +126,14 @@ public class Expense {
         this.endDate = endDate;
     }
 
-    // ----- equals e hashCode -----
+    public boolean isInvestimento() {
+        return investimento;
+    }
+
+    public void setInvestimento(boolean investimento) {
+        this.investimento = investimento;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -134,7 +149,6 @@ public class Expense {
         return Objects.hash(id);
     }
 
-    // ----- toString -----
     @Override
     public String toString() {
         return "Expense{" +
@@ -142,6 +156,7 @@ public class Expense {
                 ", description='" + description + '\'' +
                 ", amount=" + amount +
                 ", date=" + date +
+                ", investimento=" + investimento +
                 ", type=" + type +
                 ", paid=" + paid +
                 '}';

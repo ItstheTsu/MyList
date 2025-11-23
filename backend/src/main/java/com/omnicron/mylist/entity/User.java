@@ -21,18 +21,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // nome do usuário
-    private String email; // email
-    private String password; // senha (armazenar criptografada depois)
-    private float salary = 0f; // salário total do usuário
-    private float limitValue = 0f; // valor limite para alertas
-    private String currency = "R$"; // moeda preferida
+    private String name;
+    private String email; 
+    private String password;
+    private float salary = 0f; 
+    private float limitValue = 0f; 
+    private String currency = "R$"; 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // evita loop infinito ao serializar JSON
-    private List<Expense> expenses; // gastos do usuário
+    @JsonManagedReference 
+    private List<Expense> expenses; 
 
-    // ----- Construtores -----
     public User() {
     }
 
@@ -43,7 +42,6 @@ public class User {
         this.salary = salary;
     }
 
-    // ----- Getters e Setters -----
     public Long getId() {
         return id;
     }

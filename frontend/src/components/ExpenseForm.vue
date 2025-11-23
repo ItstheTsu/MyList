@@ -13,6 +13,7 @@
         <form @submit.prevent="submitExpense">
           <label>Descrição:</label>
           <input v-model="form.description" placeholder="Descrição" required />
+          <p class="hint">Adicionar uma despesa chamada "Investimento" aciona o campo no dashboard</p>
 
           <label>Valor:</label>
           <input v-model.number="form.amount" type="number" required />
@@ -28,7 +29,7 @@
 
           <div class="actions">
             <button type="button" @click="closeModal">Cancelar</button>
-            <button type="submit">Salvar</button>
+            <button type="submit" onclick="saveForm()">Salvar</button>
           </div>
         </form>
       </div>
@@ -61,6 +62,18 @@ export default {
     closeModal() {
       this.isModalOpen = false;
     },
+    saveForm() {
+      this.form = {
+        description: "",
+        amount: 0,
+        type: "",
+        date: "",
+      };
+
+      this.buscarDespesas();
+      this.buscarTotais();
+    },
+
     async submitExpense() {
       const today = new Date();
       const paymentDate = new Date(this.form.date);

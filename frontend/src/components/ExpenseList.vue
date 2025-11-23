@@ -7,7 +7,6 @@
       <li
         v-for="expense in expenses"
         :key="expense.id"
-        style="margin-bottom: 8px"
       >
         {{ expense.description }} - Tipo: {{ expense.type }} - R$
         {{ expense.amount }} - Para pagamento em: {{ expense.datate }}

@@ -48,13 +48,10 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
-            // Cria o usuário (service retorna User)
             User saved = userService.createUser(user);
 
-            // Gera o token JWT
             String token = jwtUtil.generateToken(saved.getEmail());
 
-            // Retorna usuário + token
             Map<String, Object> res = new HashMap<>();
             res.put("user", saved);
             res.put("token", token);

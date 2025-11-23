@@ -43,6 +43,10 @@
   border-radius: 5px;
   border: #000 1px solid;
 }
+.modal form .hint {
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
 .modal form .actions {
   margin-top: 2rem;
   display: flex;

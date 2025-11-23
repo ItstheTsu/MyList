@@ -1,7 +1,9 @@
 package com.omnicron.mylist.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,11 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.omnicron.mylist.dto.LoginRequest;
 import com.omnicron.mylist.dto.LoginResponse;
+import com.omnicron.mylist.entity.FinanceSummary;
 import com.omnicron.mylist.entity.User;
 import com.omnicron.mylist.security.JwtUtil;
 import com.omnicron.mylist.service.EmailService;
 import com.omnicron.mylist.service.PasswordResetService;
 import com.omnicron.mylist.service.UserService;
+import com.omnicron.mylist.service.ExpenseService;
+import com.omnicron.mylist.service.FinanceSummaryService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,18 +35,24 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final PasswordResetService passwordResetService;
     private final EmailService emailService;
+    private ExpenseService expenseService;
+    private FinanceSummaryService financeService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
             UserService userService,
             JwtUtil jwtUtil,
             PasswordResetService passwordResetService,
-            EmailService emailService) {
+            EmailService emailService,
+            ExpenseService expenseService,
+            FinanceSummaryService financeService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordResetService = passwordResetService;
         this.emailService = emailService;
+        this.expenseService = expenseService;
+        this.financeService = financeService;
     }
 
     @PostMapping("/login")
@@ -85,8 +96,6 @@ public class AuthController {
         }
     }
 
-    // Recuperar senha - gerar token e enviar email
-
     @PostMapping("/recover-password")
     public ResponseEntity<?> recoverPassword(@RequestBody Map<String, String> body) {
         String email = body.get("email");
@@ -118,4 +127,22 @@ public class AuthController {
             return ResponseEntity.status(400).body("Token inválido ou usuário não encontrado");
         return ResponseEntity.ok("Senha atualizada com sucesso!");
     }
+
+    public double getTotalGasto() {
+        return expenseService.getTotalGasto();
+    }
+
+    @GetMapping("/finance/summary")
+    public Map<String, Object> getSummary() {
+        Map<String, Object> map = new HashMap<>();
+
+        FinanceSummary summary = financeService.getSummary();
+        Double totalGasto = expenseService.getTotalGasto();
+
+        map.put("totalInvestimentos", summary.getTotalInvestimentos());
+        map.put("totalGasto", totalGasto);
+
+        return map;
+    }
+
 }
